@@ -335,12 +335,21 @@
       font-weight: 700 !important;
     }
 
-    /* ---- Title particle canvas ---- */
-    #title-particles {
+    /* ---- Emoji rain ---- */
+    .emoji-rain {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       pointer-events: none;
+      overflow: hidden;
+    }
+    .rain-drop {
+      position: absolute;
+      top: -60px;
+      font-size: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform;
     }
   </style>
 </head>
@@ -353,7 +362,7 @@
 
   <!-- 1: TITLE -->
   <div class="slide active" data-theme="dark" id="slide-title">
-    <canvas id="title-particles"></canvas>
+    <div class="emoji-rain" id="emoji-rain"></div>
     <div class="big-emoji anim-item">&#x1F954;</div>
     <h1 class="anim-item glow">My Obsession: Potatoes</h1>
     <p class="subtitle anim-item">A deeply personal journey</p>
@@ -866,76 +875,48 @@
     });
     correctObserver.observe(correctSlide, { attributes: true, attributeFilter: ['class'] });
 
-    // ---- Title particle effect (canvas) ----
-    function initTitleParticles() {
-      const canvas = document.getElementById('title-particles');
-      const ctx = canvas.getContext('2d');
-      let w, h;
+    // ---- Emoji rain on title slide ----
+    function initEmojiRain() {
+      const container = document.getElementById('emoji-rain');
+      const emojis = ['\u{1F954}', '\u{1F35F}', '\u{1F34B}', '\u{1F9C8}', '\u{1F525}', '\u{1F954}', '\u{1F35F}', '\u{1F954}'];
+      const DROP_COUNT = 35;
 
-      function resize() {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-      }
-      resize();
-      window.addEventListener('resize', resize);
+      function spawnDrop() {
+        const el = document.createElement('div');
+        el.className = 'rain-drop';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = (Math.random() * 100) + '%';
+        el.style.fontSize = (1.2 + Math.random() * 2) + 'rem';
+        container.appendChild(el);
 
-      const PARTICLE_COUNT = 80;
-      const particles = [];
+        const duration = 3 + Math.random() * 4;
+        const wobble = -30 + Math.random() * 60;
+        const spin = -180 + Math.random() * 360;
 
-      const colors = [
-        'rgba(240,180,41,',   // gold
-        'rgba(232,168,56,',   // amber
-        'rgba(212,150,30,',   // deep gold
-        'rgba(255,220,100,',  // light gold
-      ];
-
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: 1 + Math.random() * 2.5,
-          vx: -0.15 + Math.random() * 0.3,
-          vy: -0.3 - Math.random() * 0.4,
-          alpha: 0.05 + Math.random() * 0.25,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          pulse: Math.random() * Math.PI * 2,
-          pulseSpeed: 0.01 + Math.random() * 0.02,
+        gsap.to(el, {
+          y: window.innerHeight + 80,
+          x: wobble,
+          rotation: spin,
+          opacity: 0.15 + Math.random() * 0.25,
+          duration: duration,
+          ease: 'none',
+          onComplete: () => {
+            el.remove();
+          }
         });
       }
 
-      function draw() {
-        ctx.clearRect(0, 0, w, h);
-
-        for (const p of particles) {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.pulse += p.pulseSpeed;
-
-          // Wrap around
-          if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
-          if (p.x < -10) p.x = w + 10;
-          if (p.x > w + 10) p.x = -10;
-
-          const flicker = 0.7 + 0.3 * Math.sin(p.pulse);
-          const a = p.alpha * flicker;
-
-          // Glow
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
-          ctx.fillStyle = p.color + (a * 0.3) + ')';
-          ctx.fill();
-
-          // Core
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = p.color + a + ')';
-          ctx.fill();
-        }
-
-        requestAnimationFrame(draw);
+      // Initial burst
+      for (let i = 0; i < DROP_COUNT; i++) {
+        gsap.delayedCall(Math.random() * 3, spawnDrop);
       }
 
-      draw();
+      // Continuous rain
+      setInterval(() => {
+        if (document.getElementById('slide-title').classList.contains('active')) {
+          spawnDrop();
+        }
+      }, 200);
     }
 
     // Start SSE connection
@@ -945,7 +926,7 @@
     progress.style.width = (1 / slides.length * 100) + '%';
     counter.textContent = '1 / ' + slides.length;
     animateFirstSlide(slides[0]);
-    initTitleParticles();
+    initEmojiRain();
   </script>
 </body>
 </html>

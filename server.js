@@ -91,11 +91,12 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // API: vote URL (for QR code) — prefer ngrok if available
+  // API: vote URL (for QR code) — use the request's own host
   if (req.url === '/api/vote-url') {
-    const base = ngrokUrl || `http://${getLocalIP()}:${PORT}`;
+    const host = req.headers.host || `${getLocalIP()}:${PORT}`;
+    const proto = host.includes('railway') || host.includes('ngrok') ? 'https' : 'http';
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ url: `${base}/vote.html` }));
+    res.end(JSON.stringify({ url: `${proto}://${host}/vote.html` }));
     return;
   }
 
