@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Vote: Best Potato</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #f5f0e8;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px 60px;
+    }
+    .emoji-top { font-size: 3rem; margin-bottom: 8px; }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .sub {
+      font-size: 0.95rem;
+      opacity: 0.5;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .option-btn {
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 18px 20px;
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      font-size: 1.15rem;
+      color: #f5f0e8;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-appearance: none;
+    }
+    .option-btn:active { transform: scale(0.97); }
+    .option-btn.selected {
+      border-color: #f0b429;
+      background: rgba(240,180,41,0.15);
+      box-shadow: 0 0 20px rgba(240,180,41,0.15);
+    }
+    .option-emoji { font-size: 1.5rem; }
+    .submit-btn {
+      margin-top: 24px;
+      background: linear-gradient(135deg, #f0b429, #d4961e);
+      border: none;
+      border-radius: 14px;
+      padding: 16px 48px;
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #2c1810;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      opacity: 0.3;
+      pointer-events: none;
+      -webkit-appearance: none;
+    }
+    .submit-btn.ready { opacity: 1; pointer-events: auto; }
+    .submit-btn.ready:active { transform: scale(0.96); }
+    .screen { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 60vh; }
+    .screen .big { font-size: 4rem; margin-bottom: 16px; }
+    .screen h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 8px; }
+    .screen p { opacity: 0.5; font-size: 1rem; }
+  </style>
+</head>
+<body>
+
+  <div id="vote-form">
+    <div class="emoji-top">&#x1F954;</div>
+    <h1>What's the best potato?</h1>
+    <p class="sub">Pick your favourite. Choose wisely.</p>
+
+    <div class="options">
+      <button class="option-btn" data-choice="Hot Chips"><span class="option-emoji">&#x1F35F;</span> Hot Chips</button>
+      <button class="option-btn" data-choice="BBQ Roasted"><span class="option-emoji">&#x1F525;</span> BBQ Roasted</button>
+      <button class="option-btn" data-choice="Potato Salad"><span class="option-emoji">&#x1F957;</span> Potato Salad</button>
+      <button class="option-btn" data-choice="Oven Baked"><span class="option-emoji">&#x1F3E0;</span> Oven Baked</button>
+      <button class="option-btn" data-choice="Air Fried"><span class="option-emoji">&#x1F32C;&#xFE0F;</span> Air Fried</button>
+      <button class="option-btn" data-choice="Mashed"><span class="option-emoji">&#x1F944;</span> Mashed</button>
+      <button class="option-btn" data-choice="Boiled"><span class="option-emoji">&#x1FAE0;</span> Boiled</button>
+    </div>
+    <button class="submit-btn" id="submit-btn">Cast Your Vote</button>
+  </div>
+
+  <div class="screen" id="done-screen">
+    <div class="big">&#x1F5F3;&#xFE0F;</div>
+    <h2>Vote recorded!</h2>
+    <p>Now sit tight for the results...</p>
+  </div>
+
+  <div class="screen" id="already-screen">
+    <div class="big">&#x1F440;</div>
+    <h2>You already voted!</h2>
+    <p>Nice try though.</p>
+  </div>
+
+  <script>
+    var selected = null;
+    var voterId = '';
+
+    // Generate a simple voter ID
+    try {
+      voterId = localStorage.getItem('potato-voter-id');
+      if (!voterId) {
+        voterId = 'v-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('potato-voter-id', voterId);
+      }
+    } catch(e) {
+      voterId = 'v-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function showForm() {
+      document.getElementById('vote-form').style.display = '';
+      document.getElementById('already-screen').style.display = 'none';
+      document.getElementById('done-screen').style.display = 'none';
+    }
+
+    function showAlready() {
+      document.getElementById('vote-form').style.display = 'none';
+      document.getElementById('already-screen').style.display = 'flex';
+    }
+
+    function showDone() {
+      document.getElementById('vote-form').style.display = 'none';
+      document.getElementById('done-screen').style.display = 'flex';
+    }
+
+    // Check with server if votes were reset since we last voted
+    function checkStatus() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/api/status', true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            var savedToken = localStorage.getItem('potato-reset-token');
+            if (savedToken && savedToken !== data.resetToken) {
+              // Votes were reset — allow re-voting
+              localStorage.removeItem('potato-voted');
+              localStorage.removeItem('potato-reset-token');
+              // Generate new voter ID
+              voterId = 'v-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+              localStorage.setItem('potato-voter-id', voterId);
+              showForm();
+              return;
+            }
+          } catch(e) {}
+        }
+        // If we have a voted flag and token matches, show already voted
+        try {
+          if (localStorage.getItem('potato-voted')) {
+            showAlready();
+          }
+        } catch(e) {}
+      };
+      xhr.onerror = function() {
+        // Offline — just check local
+        try {
+          if (localStorage.getItem('potato-voted')) showAlready();
+        } catch(e) {}
+      };
+      xhr.send();
+    }
+
+    checkStatus();
+
+    // Option selection
+    var btns = document.querySelectorAll('.option-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function() {
+        selected = this.getAttribute('data-choice');
+        for (var j = 0; j < btns.length; j++) btns[j].classList.remove('selected');
+        this.classList.add('selected');
+        document.getElementById('submit-btn').classList.add('ready');
+      });
+    }
+
+    // Submit
+    document.getElementById('submit-btn').addEventListener('click', function() {
+      if (!selected) return;
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/vote', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        if (xhr.status === 409) {
+          showAlready();
+          return;
+        }
+        if (xhr.status === 200) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            localStorage.setItem('potato-voted', 'true');
+            localStorage.setItem('potato-reset-token', data.resetToken);
+          } catch(e) {}
+          showDone();
+        }
+      };
+      xhr.onerror = function() { alert('Something went wrong!'); };
+      xhr.send(JSON.stringify({ choice: selected, voterId: voterId }));
+    });
+  </script>
+</body>
+</html>
