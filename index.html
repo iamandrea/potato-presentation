@@ -20,6 +20,29 @@
       width: 100vw;
     }
 
+    /* ---- Background crossfade layers ---- */
+    .bg-layer {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+    #bg-front { z-index: 2; }
+    #bg-back  { z-index: 1; }
+
+    /* ---- Gold particle canvas ---- */
+    #gold-particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 50;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
     /* ---- Slides ---- */
     .slide {
       position: absolute;
@@ -31,12 +54,17 @@
       align-items: center;
       justify-content: center;
       padding: 60px 80px;
-      visibility: hidden;
-      z-index: 0;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      transform: translateX(100%);
+      will-change: transform, opacity;
     }
     .slide.active {
-      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
       z-index: 10;
+      transform: translateX(0);
     }
 
     h1 {
@@ -83,15 +111,6 @@
     .dim { opacity: 0.55; }
     .small { font-size: 1.1rem; opacity: 0.7; margin-top: 20px; }
 
-    /* ---- Floating potato particles ---- */
-    .potato-particle {
-      position: fixed;
-      font-size: 2rem;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0;
-    }
-
     /* ---- Progress bar ---- */
     .progress {
       position: fixed;
@@ -115,18 +134,18 @@
       font-family: 'Space Grotesk', sans-serif;
     }
 
-    /* ---- Theme per slide ---- */
-    .slide[data-theme="dark"]   { background: #0a0a0a; color: #f5f0e8; }
-    .slide[data-theme="gold"]   { background: linear-gradient(135deg, #c9984d, #8B6914); color: #fff; }
-    .slide[data-theme="warm"]   { background: #fdf6e3; color: #2c1810; }
-    .slide[data-theme="deep"]   { background: #1a0f0a; color: #f5e6d0; }
-    .slide[data-theme="ember"]  { background: linear-gradient(135deg, #d4761e, #a0522d); color: #fff; }
-    .slide[data-theme="cream"]  { background: #faf3e0; color: #3e2723; }
-    .slide[data-theme="night"]  { background: #0d0d0d; color: #f5f0e8; }
-    .slide[data-theme="sunset"] { background: linear-gradient(135deg, #e8a838, #c9652e); color: #fff; }
-    .slide[data-theme="brown"]  { background: #2c1810; color: #fdf6e3; }
-    .slide[data-theme="lemon"]  { background: linear-gradient(135deg, #f7dc6f, #d4e157); color: #2c1810; }
-    .slide[data-theme="final"]  { background: #0a0a0a; color: #f5f0e8; }
+    /* ---- Theme per slide (bg handled by crossfade layers) ---- */
+    .slide[data-theme="dark"]   { background: transparent; color: #f5f0e8; }
+    .slide[data-theme="gold"]   { background: transparent; color: #fff; }
+    .slide[data-theme="warm"]   { background: transparent; color: #2c1810; }
+    .slide[data-theme="deep"]   { background: transparent; color: #f5e6d0; }
+    .slide[data-theme="ember"]  { background: transparent; color: #fff; }
+    .slide[data-theme="cream"]  { background: transparent; color: #3e2723; }
+    .slide[data-theme="night"]  { background: transparent; color: #f5f0e8; }
+    .slide[data-theme="sunset"] { background: transparent; color: #fff; }
+    .slide[data-theme="brown"]  { background: transparent; color: #fdf6e3; }
+    .slide[data-theme="lemon"]  { background: transparent; color: #2c1810; }
+    .slide[data-theme="final"]  { background: transparent; color: #f5f0e8; }
 
     /* ---- Tier list ---- */
     .tier-row {
@@ -171,31 +190,86 @@
     .tier-c .tier-label { background: #8B6914; color: #fff; }
     .tier-c .tier-items { background: rgba(139,105,20,0.15); }
 
-    /* ---- Nutrition grid ---- */
-    .nutrition-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin-top: 20px;
-      max-width: 700px;
+    /* ---- Nutrition facts panel ---- */
+    .nutrition-panel {
+      background: #fff;
+      color: #000;
+      border: 2px solid #000;
+      border-radius: 4px;
+      padding: 12px 16px;
+      width: 340px;
+      font-family: 'Space Grotesk', Helvetica, Arial, sans-serif;
+      margin-top: 16px;
     }
-    .nutrition-card {
-      background: rgba(240,180,41,0.1);
-      border: 1px solid rgba(240,180,41,0.2);
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-    }
-    .nutrition-card .value {
-      font-family: 'Playfair Display', serif;
+    .nutrition-panel .nf-title {
+      font-family: 'Space Grotesk', Helvetica, Arial, sans-serif;
       font-size: 2rem;
-      font-weight: 700;
-      color: #f0b429;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      border-bottom: 1px solid #000;
+      padding-bottom: 4px;
     }
-    .nutrition-card .label {
+    .nutrition-panel .nf-serving {
+      font-size: 0.85rem;
+      padding: 4px 0;
+      border-bottom: 8px solid #000;
+    }
+    .nutrition-panel .nf-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #ccc;
       font-size: 0.95rem;
-      opacity: 0.7;
-      margin-top: 4px;
+    }
+    .nutrition-panel .nf-row.thick-top {
+      border-top: 5px solid #000;
+    }
+    .nutrition-panel .nf-row .nf-bold {
+      font-weight: 700;
+    }
+    .nutrition-panel .nf-row .nf-value {
+      font-weight: 700;
+    }
+    .nutrition-panel .nf-row .nf-pct {
+      font-weight: 700;
+    }
+    .nutrition-panel .nf-footer {
+      font-size: 0.7rem;
+      padding-top: 6px;
+      border-top: 5px solid #000;
+      opacity: 0.6;
+      line-height: 1.3;
+    }
+
+    /* ---- Weber side-by-side layout ---- */
+    .weber-layout {
+      display: flex;
+      align-items: stretch;
+      gap: 50px;
+      max-width: 900px;
+      width: 90vw;
+      margin-top: 5%;
+    }
+    .weber-img-wrap {
+      width: 320px;
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+    .weber-img {
+      width: 100%;
+      height: 70%;
+      border-radius: 16px;
+      object-fit: cover;
+      filter: drop-shadow(0 8px 30px rgba(0,0,0,0.4));
+    }
+    .weber-text {
+      flex: 1;
+      text-align: left;
+    }
+    .weber-text p,
+    .weber-text .chapter {
+      text-align: left;
     }
 
     /* ---- Glow text ---- */
@@ -255,6 +329,7 @@
       object-fit: contain;
       margin: 20px 0;
       filter: drop-shadow(0 8px 30px rgba(0,0,0,0.4));
+      border: 0;
     }
     .slide-img.restaurant {
       max-width: 400px;
@@ -283,12 +358,17 @@
     .results-container {
       width: 650px;
       max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
     }
     .result-row {
       display: flex;
       align-items: center;
-      margin: 8px 0;
+      height: 46px;
+      margin: 4px 0;
       gap: 14px;
+      flex-shrink: 0;
     }
     .result-label {
       width: 130px;
@@ -316,6 +396,7 @@
       font-size: 1.1rem;
       font-weight: 700;
       color: #f0b429;
+      flex-shrink: 0;
     }
     .vote-total {
       font-size: 1rem;
@@ -342,6 +423,7 @@
       width: 100%; height: 100%;
       pointer-events: none;
       overflow: hidden;
+      z-index: 0;
     }
     .rain-drop {
       position: absolute;
@@ -355,8 +437,12 @@
 </head>
 <body>
 
-  <!-- Floating potato particles -->
-  <div id="particles"></div>
+  <!-- Background crossfade layers -->
+  <div id="bg-back" class="bg-layer"></div>
+  <div id="bg-front" class="bg-layer"></div>
+
+  <!-- Gold particle canvas -->
+  <canvas id="gold-particles"></canvas>
 
   <!-- ======== SLIDES ======== -->
 
@@ -372,6 +458,7 @@
   <div class="slide" data-theme="deep">
     <div class="age-badge anim-item">4-13</div>
     <div class="chapter anim-item">The Origin Story</div>
+    <img src="young-andrea.jpg" alt="Young Andrea" class="slide-img anim-item" style="max-width:220px; max-height:220px;">
     <h2 class="anim-item">Every night.<br>For ten years.</h2>
     <p class="anim-item">From age 4 to 13, I ate the same thing for dinner.</p>
     <p class="anim-item" style="margin-top: 28px; font-size: 2.2rem;">
@@ -386,7 +473,7 @@
     <p class="anim-item small">Not sometimes. Not often. Every. Single. Night.</p>
   </div>
 
-  <!-- 3: COMING OF AGE -->
+  <!-- 4: COMING OF AGE -->
   <div class="slide" data-theme="ember">
     <div class="age-badge anim-item" style="opacity:0.08; color:#fff;">15</div>
     <div class="chapter anim-item">Coming of Age</div>
@@ -394,10 +481,11 @@
     <p class="anim-item">At 15 I started going out to restaurants with friends.<br>
     Everyone's ordering burgers, pasta, salads...</p>
     <p class="anim-item" style="margin-top:20px; font-size:1.8rem;"><strong>I ordered a bowl of hot chips.</strong></p>
+    <img src="bowl-of-chips.jpg" alt="A bowl of hot chips" class="slide-img anim-item" style="max-width:260px; max-height:200px;">
     <p class="anim-item small">My friends correctly assumed there was something wrong with me.</p>
   </div>
 
-  <!-- 4: THE WHITEHOUSE -->
+  <!-- 5: THE WHITEHOUSE -->
   <div class="slide" data-theme="warm">
     <div class="chapter anim-item">Notable Chips</div>
     <div class="age-badge anim-item" style="opacity:0.08;">19</div>
@@ -408,28 +496,43 @@
     <p class="anim-item" style="margin-top:20px; font-size:1.6rem; font-style:italic;">"That's how I knew we'd be friends forever." - Me</p>
   </div>
 
-  <!-- 5: THE DEFENCE -->
+  <!-- 6: THE DEFENCE -->
   <div class="slide" data-theme="night">
     <div class="chapter anim-item">The Defence</div>
     <h2 class="anim-item">"Isn't that just carbs?"</h2>
-    <p class="anim-item" style="margin-bottom: 16px;">Glad you asked. Per medium potato:</p>
-    <div class="nutrition-grid anim-item" style="grid-template-columns: repeat(2, 1fr); max-width: 420px;">
-      <div class="nutrition-card">
-        <div class="value">4g</div>
-        <div class="label">Fibre</div>
+    <p class="anim-item" style="margin-bottom: 8px;">Glad you asked.</p>
+    <div class="nutrition-panel anim-item">
+      <div class="nf-title">Nutrition Facts</div>
+      <div class="nf-serving">Serving size: 1 medium potato (150g)</div>
+      <div class="nf-row thick-top">
+        <span><span class="nf-bold">Fibre</span></span>
+        <span class="nf-value">4g</span>
       </div>
-      <div class="nutrition-card">
-        <div class="value">620mg</div>
-        <div class="label">Potassium</div>
+      <div class="nf-row">
+        <span><span class="nf-bold">Potassium</span></span>
+        <span class="nf-value">620mg</span>
       </div>
+      <div class="nf-row">
+        <span><span class="nf-bold">Vitamin C</span></span>
+        <span class="nf-pct">28%</span>
+      </div>
+      <div class="nf-row">
+        <span><span class="nf-bold">Vitamin B6</span></span>
+        <span class="nf-pct">27%</span>
+      </div>
+      <div class="nf-row">
+        <span><span class="nf-bold">Iron</span></span>
+        <span class="nf-pct">10%</span>
+      </div>
+      <div class="nf-row">
+        <span><span class="nf-bold">Protein</span></span>
+        <span class="nf-value">3g</span>
+      </div>
+      <div class="nf-footer">* More potassium than a banana. You're welcome.</div>
     </div>
-    <p class="anim-item" style="font-size: 1.1rem; opacity: 0.5; margin-top: 20px; line-height: 1.9;">
-      28% Vitamin C &middot; 27% Vitamin B6 &middot; 10% Iron &middot; 3g Protein
-    </p>
-    <p class="anim-item small">More potassium than a banana. You're welcome.</p>
   </div>
 
-  <!-- VOTE: QR CODE -->
+  <!-- 7: VOTE: QR CODE -->
   <div class="slide" data-theme="gold" id="slide-qr">
     <div class="chapter anim-item">Audience Participation</div>
     <h2 class="anim-item">What's the best potato?</h2>
@@ -438,7 +541,7 @@
     <p class="anim-item small" id="vote-count-qr">Waiting for votes...</p>
   </div>
 
-  <!-- VOTE: LIVE RESULTS -->
+  <!-- 8: VOTE: LIVE RESULTS -->
   <div class="slide" data-theme="night" id="slide-results">
     <div class="chapter anim-item">The People Have Spoken</div>
     <h2 class="anim-item">Your Votes</h2>
@@ -446,7 +549,7 @@
     <p class="vote-total anim-item" id="vote-total"></p>
   </div>
 
-  <!-- TIER LIST (THE CORRECT ANSWER) — same bar layout as results -->
+  <!-- 9: TIER LIST (THE CORRECT ANSWER) -->
   <div class="slide" data-theme="brown" id="slide-correct">
     <div class="chapter anim-item">The Correct Answer</div>
     <h2 class="anim-item">The <em>Real</em> Ranking</h2>
@@ -454,43 +557,46 @@
     <p class="anim-item small">This ranking is final. No appeals.</p>
   </div>
 
-  <!-- HOTEL BONDI -->
+  <!-- 10: HOTEL BONDI -->
   <div class="slide" data-theme="warm">
     <div class="chapter anim-item">Notable Chips</div>
     <div class="age-badge anim-item" style="opacity:0.08;">33</div>
     <h2 class="anim-item">Hotel Bondi</h2>
     <img src="hotel-bondi-chips.jpg" alt="Hotel Bondi chips" class="slide-img restaurant anim-item">
-    <p class="anim-item" style="margin-top: 16px;">Highly recommend their chips.</p>
+    <p class="anim-item" style="margin-top: 16px;">⭐⭐⭐⭐⭐</p>
   </div>
 
-  <!-- THE EVOLUTION -->
+  <!-- 11: THE EVOLUTION -->
   <div class="slide" data-theme="sunset">
     <div class="chapter anim-item">The Evolution</div>
     <h2 class="anim-item">That brings us to now</h2>
+    <img src="husband-potatoes.jpg" alt="The husband with potatoes" class="slide-img restaurant anim-item">
     <p class="anim-item">These days I make roast potatoes almost every night and I am pushing my obsession onto my husband.</p>
   </div>
 
-  <!-- 8: THE WEBER -->
+  <!-- 12: THE WEBER -->
   <div class="slide" data-theme="dark">
     <div class="chapter anim-item">The New Chapter</div>
-    <div class="emoji anim-item">&#x1F525;</div>
-    <h2 class="anim-item glow">The Weber Method</h2>
-    <img src="weber-potatoes.jpg" alt="Weber roasted potatoes" class="slide-img restaurant anim-item">
-    <p class="anim-item">Cubed potatoes in a cast iron casserole pan for 30min with olive oil, salt, pepper and a splash of water.</p>
-    <p class="anim-item" style="margin-top: 16px;">And then...</p>
-    <p class="anim-item" style="font-size: 2.2rem; margin-top: 12px;">
-      <strong class="highlight">&#x1F34B; Fresh lemon squeezed on top.</strong>
-    </p>
-    <p class="anim-item small" style="margin-top: 24px;">Lemon is my second obsession. But that's a presentation for another party.</p>
+    <h2 class="anim-item glow">&#x1F525; The Weber Method</h2>
+    <div class="weber-layout anim-item">
+      <div class="weber-img-wrap"><img src="weber-potatoes.jpg" alt="Weber roasted potatoes" class="weber-img"></div>
+      <div class="weber-text">
+        <p>Cubed potatoes in a cast iron casserole pan for 30min with olive oil, salt, pepper and a splash of water.</p>
+        <p style="margin-top: 16px;">And then...</p>
+        <p style="font-size: 1.8rem; margin-top: 12px; line-height: 1.2;">
+          <strong class="highlight">&#x1F34B; Fresh lemon squeezed on top.</strong>
+        </p>
+        <p class="small" style="margin-top: 16px;">Lemon is my second obsession. But that's a presentation for another party.</p>
+      </div>
+    </div>
   </div>
 
-  <!-- CLOSING -->
-  <div class="slide" data-theme="final">
+  <!-- 13: CLOSING -->
+  <div class="slide" data-theme="final" id="slide-closing">
+    <div class="emoji-rain" id="closing-emoji-rain"></div>
     <div class="big-emoji anim-item">&#x1F954;</div>
     <h1 class="anim-item glow">Thank You</h1>
     <p class="anim-item" style="font-size:1.6rem;">I will not be taking questions.<br>Only hot chips.</p>
-    <div class="bg-shape" style="width:400px;height:400px;background:#f0b429;bottom:-100px;left:-100px;"></div>
-    <div class="bg-shape" style="width:300px;height:300px;background:#d4761e;top:-80px;right:-60px;"></div>
   </div>
 
   <!-- ======== END SLIDES ======== -->
@@ -504,39 +610,102 @@
     const slides = document.querySelectorAll('.slide');
     const progress = document.querySelector('.progress');
     const counter = document.querySelector('.counter');
+    const bgFront = document.getElementById('bg-front');
+    const bgBack = document.getElementById('bg-back');
+    const goldCanvas = document.getElementById('gold-particles');
     let current = 0;
     let animating = false;
 
-    // ---- Floating potato particles ----
-    const particleContainer = document.getElementById('particles');
-    const emojis = ['\u{1F954}', '\u{1F35F}', '\u{1F34B}'];
-    for (let i = 0; i < 15; i++) {
-      const el = document.createElement('div');
-      el.className = 'potato-particle';
-      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      el.style.left = Math.random() * 100 + 'vw';
-      el.style.top = Math.random() * 100 + 'vh';
-      el.style.fontSize = (1.2 + Math.random() * 1.5) + 'rem';
-      particleContainer.appendChild(el);
+    // ---- Background theme map ----
+    const THEME_BG = {
+      dark:   '#0a0a0a',
+      gold:   'linear-gradient(135deg, #c9984d, #8B6914)',
+      warm:   '#fdf6e3',
+      deep:   '#1a0f0a',
+      ember:  'linear-gradient(135deg, #d4761e, #a0522d)',
+      cream:  '#faf3e0',
+      night:  '#0d0d0d',
+      sunset: 'linear-gradient(135deg, #e8a838, #c9652e)',
+      brown:  '#2c1810',
+      lemon:  'linear-gradient(135deg, #f7dc6f, #d4e157)',
+      final:  '#0a0a0a',
+    };
 
-      gsap.to(el, {
-        y: -80 + Math.random() * 160,
-        x: -40 + Math.random() * 80,
-        opacity: 0.12 + Math.random() * 0.12,
-        rotation: Math.random() * 360,
-        duration: 6 + Math.random() * 8,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: Math.random() * 4,
-      });
+    // Slides with emoji rain — hide gold particles on these
+    const EMOJI_RAIN_SLIDES = new Set([0, slides.length - 1]);
+
+    function getThemeBg(slideEl) {
+      const theme = slideEl.getAttribute('data-theme');
+      return THEME_BG[theme] || '#0a0a0a';
     }
 
+    function setBg(el, bg) {
+      if (bg.includes('gradient')) {
+        el.style.backgroundColor = '';
+        el.style.background = bg;
+      } else {
+        el.style.background = '';
+        el.style.backgroundColor = bg;
+      }
+    }
+
+    function updateParticleVisibility(slideIndex) {
+      goldCanvas.style.opacity = EMOJI_RAIN_SLIDES.has(slideIndex) ? '0' : '1';
+    }
+
+    // ---- Gold particle canvas ----
+    (function initGoldParticles() {
+      const canvas = document.getElementById('gold-particles');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      const PARTICLE_COUNT = 60;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: 1 + Math.random() * 2.5,
+          dx: -0.15 + Math.random() * 0.3,
+          dy: -0.3 + Math.random() * -0.2,
+          alpha: 0.08 + Math.random() * 0.2,
+          alphaDir: (Math.random() < 0.5 ? 1 : -1) * (0.002 + Math.random() * 0.004),
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const p of particles) {
+          p.x += p.dx;
+          p.y += p.dy;
+          p.alpha += p.alphaDir;
+          if (p.alpha <= 0.05 || p.alpha >= 0.3) p.alphaDir *= -1;
+          if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+          if (p.x < -10) p.x = canvas.width + 10;
+          if (p.x > canvas.width + 10) p.x = -10;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(240, 180, 41, ${p.alpha})`;
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
     // ---- Initial slide entrance ----
+    // The first slide starts as active (translateX(0), opacity 1 via CSS class).
+    // We just animate its inner items.
     function animateFirstSlide(slideEl) {
       const items = slideEl.querySelectorAll('.anim-item');
       const tl = gsap.timeline();
-      tl.fromTo(slideEl, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0);
       items.forEach((item, i) => {
         tl.fromTo(item,
           { opacity: 0, y: 40, scale: 0.97 },
@@ -548,6 +717,7 @@
     }
 
     // ---- Navigate ----
+    // Uses translateX to slide in/out simultaneously. No opacity gap.
     function goTo(index, direction) {
       if (index < 0 || index >= slides.length || index === current || animating) return;
       animating = true;
@@ -555,53 +725,78 @@
       const outSlide = slides[current];
       const inSlide = slides[index];
 
-      // Kill any running tweens on both slides
+      // Kill any running tweens on both slides and their children
       gsap.killTweensOf(outSlide.querySelectorAll('.anim-item'));
       gsap.killTweensOf(outSlide);
       gsap.killTweensOf(inSlide.querySelectorAll('.anim-item'));
       gsap.killTweensOf(inSlide);
 
-      const master = gsap.timeline({
-        onComplete: () => { animating = false; }
-      });
+      // Direction: 1 = forward (old goes left, new comes from right)
+      //           -1 = backward (old goes right, new comes from left)
+      const outX = direction === 1 ? '-100%' : '100%';
+      const inStartX = direction === 1 ? '100%' : '-100%';
 
-      // Exit current slide — fast
-      const xTo = direction === 1 ? -30 : 30;
-      const outItems = outSlide.querySelectorAll('.anim-item');
-      outItems.forEach((item, i) => {
-        master.to(item, { opacity: 0, x: xTo * 0.3, duration: 0.12, ease: 'power2.in' }, i * 0.01);
-      });
-      master.to(outSlide, { opacity: 0, duration: 0.1, ease: 'power2.in' }, 0.03);
+      // ---- Background crossfade ----
+      setBg(bgBack, getThemeBg(inSlide));
+      gsap.to(bgFront, { opacity: 0, duration: 0.45, ease: 'power2.inOut' });
 
-      // Swap active class
-      master.call(() => {
-        outSlide.classList.remove('active');
-        inSlide.classList.add('active');
-        current = index;
-        progress.style.width = ((current + 1) / slides.length * 100) + '%';
-        counter.textContent = (current + 1) + ' / ' + slides.length;
-      });
+      // Update particle visibility for the incoming slide
+      updateParticleVisibility(index);
 
-      // Enter new slide — fast
-      const xFrom = direction === 1 ? 40 : -40;
+      // Make incoming slide visible and positioned offscreen
+      gsap.set(inSlide, { opacity: 1, pointerEvents: 'auto', zIndex: 10, transform: 'translateX(' + inStartX + ')' });
+      inSlide.classList.add('active');
+
+      // Reset opacity on incoming items so they're visible during slide-in
       const inItems = inSlide.querySelectorAll('.anim-item');
-      const enterStart = master.duration();
-      master.fromTo(inSlide, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'power2.out' }, enterStart);
-      inItems.forEach((item, i) => {
-        master.fromTo(item,
-          { opacity: 0, y: 20, x: xFrom * 0.2, scale: 0.98 },
-          { opacity: 1, y: 0, x: 0, scale: 1, duration: 0.3, ease: 'power3.out' },
-          enterStart + 0.05 + i * 0.05
-        );
+      gsap.set(inItems, { opacity: 1, y: 0, x: 0, scale: 1 });
+
+      // Keep outgoing slide visible during transition
+      gsap.set(outSlide, { zIndex: 9 });
+
+      const DURATION = 0.45;
+
+      const master = gsap.timeline({
+        onComplete: () => {
+          // Snap bg-front to new background and reset opacity
+          setBg(bgFront, getThemeBg(inSlide));
+          gsap.set(bgFront, { opacity: 1 });
+
+          // Clean up outgoing slide
+          outSlide.classList.remove('active');
+          gsap.set(outSlide, { opacity: 0, pointerEvents: 'none', zIndex: 5, transform: 'translateX(100%)' });
+
+          // Ensure incoming slide is clean
+          gsap.set(inSlide, { zIndex: 10 });
+
+          current = index;
+          progress.style.width = ((current + 1) / slides.length * 100) + '%';
+          counter.textContent = (current + 1) + ' / ' + slides.length;
+          animating = false;
+        }
       });
 
-      const shapes = inSlide.querySelectorAll('.bg-shape');
-      shapes.forEach((shape, i) => {
-        master.fromTo(shape,
-          { scale: 0.5, opacity: 0 },
-          { scale: 1, opacity: 0.15, duration: 1, ease: 'power2.out' },
-          enterStart + 0.15 + i * 0.1
-        );
+      // Slide both simultaneously
+      master.to(outSlide, {
+        transform: 'translateX(' + outX + ')',
+        duration: DURATION,
+        ease: 'power2.inOut'
+      }, 0);
+
+      master.to(inSlide, {
+        transform: 'translateX(0%)',
+        duration: DURATION,
+        ease: 'power2.inOut'
+      }, 0);
+
+      // After the slide transition, do a subtle entrance animation on anim-items
+      inItems.forEach((item, i) => {
+        gsap.set(item, { opacity: 0, y: 20, scale: 0.98 });
+        master.to(item, {
+          opacity: 1, y: 0, scale: 1,
+          duration: 0.3,
+          ease: 'power3.out'
+        }, DURATION + 0.02 + i * 0.05);
       });
     }
 
@@ -653,14 +848,8 @@
     const revealSlide = document.getElementById('slide-reveal');
     const superfriesImg = document.getElementById('superfries-img');
 
-    // Override the standard enter for the reveal slide
-    const originalGoTo = goTo;
-
-    // We need to hook into the slide transition to add the bounce
-    // Watch for when the reveal slide becomes active
     const observer = new MutationObserver(() => {
       if (revealSlide.classList.contains('active') && superfriesImg) {
-        // The image starts hidden, then bounces in
         gsap.fromTo(superfriesImg,
           { scale: 0, rotation: -15, opacity: 0, y: -100 },
           {
@@ -713,7 +902,10 @@
         latestVotes = data.votes || {};
         totalVoters = data.totalVoters || 0;
         updateVoteCountDisplay();
-        updateResultsBars();
+        // Only live-update bars if we're NOT doing the suspense animation
+        if (!voteAnimRunning) {
+          updateResultsBarsLive();
+        }
       };
       es.onerror = () => {
         // Silently retry - SSE auto-reconnects
@@ -729,27 +921,13 @@
       }
     }
 
-    function updateResultsBars() {
+    // Live update (used when the results slide is already showing and votes stream in)
+    function updateResultsBarsLive() {
       const container = document.getElementById('results-bars');
       const totalEl = document.getElementById('vote-total');
-      if (!container) return;
+      if (!container || !container.hasChildNodes()) return;
 
       const maxVotes = Math.max(1, ...VOTE_OPTIONS.map(o => latestVotes[o] || 0));
-
-      // Build or update bars
-      if (!container.hasChildNodes()) {
-        VOTE_OPTIONS.forEach(opt => {
-          const row = document.createElement('div');
-          row.className = 'result-row';
-          row.dataset.option = opt;
-          row.innerHTML = `
-            <div class="result-label">${opt}</div>
-            <div class="result-bar-bg"><div class="result-bar" style="width:0%"></div></div>
-            <div class="result-count">0</div>
-          `;
-          container.appendChild(row);
-        });
-      }
 
       VOTE_OPTIONS.forEach(opt => {
         const row = container.querySelector(`[data-option="${opt}"]`);
@@ -766,6 +944,150 @@
           : `${totalVoters} total vote${totalVoters !== 1 ? 's' : ''}`;
       }
     }
+
+    // ---- Audience vote results with suspense animation ----
+    let voteAnimRan = false;
+    let voteAnimRunning = false;
+
+    function buildVoteResultBars() {
+      const container = document.getElementById('results-bars');
+      if (container.hasChildNodes()) return;
+
+      // Build bars in shuffled order, starting small
+      const shuffled = [...VOTE_OPTIONS].sort(() => Math.random() - 0.5);
+      shuffled.forEach(opt => {
+        const row = document.createElement('div');
+        row.className = 'result-row';
+        row.dataset.option = opt;
+        row.innerHTML = `
+          <div class="result-label">${opt}</div>
+          <div class="result-bar-bg"><div class="result-bar" style="width:10%"></div></div>
+          <div class="result-count" style="opacity:0">0</div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function animateVoteResults() {
+      if (voteAnimRan) return;
+      voteAnimRan = true;
+      voteAnimRunning = true;
+
+      const container = document.getElementById('results-bars');
+      const totalEl = document.getElementById('vote-total');
+      const rows = Array.from(container.querySelectorAll('.result-row'));
+      if (rows.length === 0) return;
+
+      const ROW_HEIGHT = rows[0].offsetHeight + 8; // height + margin*2
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          voteAnimRunning = false;
+        }
+      });
+
+      // Phase 1: Shuffle rows + fluctuate bar widths for suspense
+      const shuffleCount = 6;
+      const trackOrder = [...rows];
+
+      for (let s = 0; s < shuffleCount; s++) {
+        const i = Math.floor(Math.random() * trackOrder.length);
+        let j = Math.floor(Math.random() * trackOrder.length);
+        while (j === i) j = Math.floor(Math.random() * trackOrder.length);
+
+        const dy = (j - i) * ROW_HEIGHT;
+        const time = 0.35 * s;
+
+        tl.to(trackOrder[i], { y: '+=' + dy, duration: 0.25, ease: 'power2.inOut' }, time);
+        tl.to(trackOrder[j], { y: '-=' + dy, duration: 0.25, ease: 'power2.inOut' }, time);
+
+        // Randomly grow/shrink all bars during each shuffle step
+        rows.forEach(row => {
+          const bar = row.querySelector('.result-bar');
+          const randomWidth = (15 + Math.random() * 50) + '%';
+          tl.to(bar, { width: randomWidth, duration: 0.25, ease: 'power2.inOut' }, time);
+        });
+
+        [trackOrder[i], trackOrder[j]] = [trackOrder[j], trackOrder[i]];
+      }
+
+      // Phase 2: Reorder DOM and smoothly animate to final positions + widths
+      tl.call(() => {
+        // Figure out where each row currently is on screen
+        const rowPositions = new Map();
+        rows.forEach(row => {
+          rowPositions.set(row, row.getBoundingClientRect().top);
+        });
+
+        // Reset y transforms and reorder DOM
+        container.querySelectorAll('.result-row').forEach(r => gsap.set(r, { y: 0 }));
+        const sorted = [...VOTE_OPTIONS].sort((a, b) => (latestVotes[b] || 0) - (latestVotes[a] || 0));
+        sorted.forEach(opt => {
+          const row = container.querySelector(`[data-option="${opt}"]`);
+          container.appendChild(row);
+        });
+
+        // Calculate the offset from old position to new position and animate from there
+        const maxVotes = Math.max(1, ...VOTE_OPTIONS.map(o => latestVotes[o] || 0));
+        sorted.forEach((opt, i) => {
+          const row = container.querySelector(`[data-option="${opt}"]`);
+          const bar = row.querySelector('.result-bar');
+          const countEl = row.querySelector('.result-count');
+          const count = latestVotes[opt] || 0;
+          const pct = (count / maxVotes) * 100;
+
+          const oldTop = rowPositions.get(row);
+          const newTop = row.getBoundingClientRect().top;
+          const offset = oldTop - newTop;
+
+          gsap.fromTo(row, { y: offset }, { y: 0, duration: 0.6, ease: 'power2.inOut' });
+
+          gsap.to(bar, {
+            width: pct + '%',
+            duration: 0.6,
+            ease: 'power2.out',
+          });
+
+          gsap.to(countEl, {
+            opacity: 1,
+            duration: 0.3,
+            delay: 0.3,
+            onStart: () => { countEl.textContent = count; }
+          });
+
+          if (i < 3 && count > 0) {
+            gsap.delayedCall(0.8, () => {
+              bar.style.background = 'linear-gradient(90deg, #2ecc71, #27ae60)';
+              row.classList.add('top3');
+            });
+          }
+        });
+
+        if (totalEl) {
+          gsap.to(totalEl, {
+            opacity: 1,
+            duration: 0.4,
+            delay: 0.5,
+            onStart: () => {
+              totalEl.textContent = totalVoters === 0
+                ? 'No votes yet'
+                : `${totalVoters} total vote${totalVoters !== 1 ? 's' : ''}`;
+            }
+          });
+        }
+      });
+    }
+
+    // Watch for results slide becoming active
+    const resultsSlide = document.getElementById('slide-results');
+    const resultsObserver = new MutationObserver(() => {
+      if (resultsSlide.classList.contains('active')) {
+        buildVoteResultBars();
+        setTimeout(animateVoteResults, 400);
+      }
+    });
+    resultsObserver.observe(resultsSlide, { attributes: true, attributeFilter: ['class'] });
+
 
     // ---- Correct answer bar chart with shuffle animation ----
     const CORRECT_RANKING = [
@@ -784,7 +1106,7 @@
       const container = document.getElementById('correct-bars');
       if (container.hasChildNodes()) return;
 
-      // Start in a shuffled order
+      // Start in a shuffled order, bars start small
       const shuffled = [...CORRECT_RANKING].sort(() => Math.random() - 0.5);
       shuffled.forEach(item => {
         const row = document.createElement('div');
@@ -792,8 +1114,8 @@
         row.dataset.option = item.label;
         row.innerHTML = `
           <div class="result-label">${item.label}</div>
-          <div class="result-bar-bg"><div class="result-bar" style="width:50%"></div></div>
-          <div class="result-count" style="width:auto;min-width:30px;opacity:0">★</div>
+          <div class="result-bar-bg"><div class="result-bar" style="width:10%"></div></div>
+          <div class="result-count" style="width:auto;min-width:30px;opacity:0">&#9733;</div>
         `;
         container.appendChild(row);
       });
@@ -805,60 +1127,70 @@
 
       const container = document.getElementById('correct-bars');
       const rows = Array.from(container.querySelectorAll('.result-row'));
-      const ROW_HEIGHT = rows[0].offsetHeight + 8; // height + margin
+      const ROW_HEIGHT = rows[0].offsetHeight + 8; // height + margin*2
 
-      // Phase 1: Shuffle around for suspense (swap random pairs)
+      // Phase 1: Shuffle around + fluctuate bar widths for suspense
       const tl = gsap.timeline();
       const shuffleCount = 6;
+      const trackOrder = [...rows];
 
       for (let s = 0; s < shuffleCount; s++) {
-        const i = Math.floor(Math.random() * rows.length);
-        let j = Math.floor(Math.random() * rows.length);
-        while (j === i) j = Math.floor(Math.random() * rows.length);
+        const i = Math.floor(Math.random() * trackOrder.length);
+        let j = Math.floor(Math.random() * trackOrder.length);
+        while (j === i) j = Math.floor(Math.random() * trackOrder.length);
 
-        const rowI = rows[i];
-        const rowJ = rows[j];
         const dy = (j - i) * ROW_HEIGHT;
+        const time = 0.35 * s;
 
-        tl.to(rowI, { y: '+=' + dy, duration: 0.25, ease: 'power2.inOut' }, 0.35 * s);
-        tl.to(rowJ, { y: '-=' + dy, duration: 0.25, ease: 'power2.inOut' }, 0.35 * s);
+        tl.to(trackOrder[i], { y: '+=' + dy, duration: 0.25, ease: 'power2.inOut' }, time);
+        tl.to(trackOrder[j], { y: '-=' + dy, duration: 0.25, ease: 'power2.inOut' }, time);
 
-        // Update the tracking array
-        [rows[i], rows[j]] = [rows[j], rows[i]];
+        // Randomly grow/shrink all bars during each shuffle step
+        rows.forEach(row => {
+          const bar = row.querySelector('.result-bar');
+          const randomWidth = (15 + Math.random() * 50) + '%';
+          tl.to(bar, { width: randomWidth, duration: 0.25, ease: 'power2.inOut' }, time);
+        });
+
+        [trackOrder[i], trackOrder[j]] = [trackOrder[j], trackOrder[i]];
       }
 
-      // Phase 2: After shuffling, snap everything back to origin and reorder DOM
+      // Phase 2: Reorder DOM and smoothly animate to final positions + widths
       tl.call(() => {
-        // Reset all transforms
-        container.querySelectorAll('.result-row').forEach(r => gsap.set(r, { y: 0 }));
+        const rowPositions = new Map();
+        rows.forEach(row => {
+          rowPositions.set(row, row.getBoundingClientRect().top);
+        });
 
-        // Reorder DOM to correct ranking
+        container.querySelectorAll('.result-row').forEach(r => gsap.set(r, { y: 0 }));
         CORRECT_RANKING.forEach(item => {
           const row = container.querySelector(`[data-option="${item.label}"]`);
           container.appendChild(row);
         });
-      });
 
-      // Phase 3: Animate bars to correct widths with stagger
-      tl.call(() => {
         CORRECT_RANKING.forEach((item, i) => {
           const row = container.querySelector(`[data-option="${item.label}"]`);
           const bar = row.querySelector('.result-bar');
           const star = row.querySelector('.result-count');
 
+          const oldTop = rowPositions.get(row);
+          const newTop = row.getBoundingClientRect().top;
+          const offset = oldTop - newTop;
+
+          gsap.fromTo(row, { y: offset }, { y: 0, duration: 0.6, ease: 'power2.inOut' });
+
           gsap.to(bar, {
             width: item.score + '%',
-            duration: 0.5,
-            delay: i * 0.08,
+            duration: 0.6,
             ease: 'power2.out',
           });
 
           if (item.top) {
-            gsap.delayedCall(0.8 + i * 0.08, () => {
+            gsap.delayedCall(0.8, () => {
               bar.style.background = 'linear-gradient(90deg, #2ecc71, #27ae60)';
               row.classList.add('top3');
             });
-            gsap.to(star, { opacity: 1, scale: 1.3, delay: 0.9 + i * 0.08, duration: 0.3, ease: 'back.out(2)' });
+            gsap.to(star, { opacity: 1, scale: 1.3, delay: 0.9, duration: 0.3, ease: 'back.out(2)' });
           } else {
             gsap.set(star, { opacity: 0 });
           }
@@ -875,10 +1207,10 @@
     });
     correctObserver.observe(correctSlide, { attributes: true, attributeFilter: ['class'] });
 
-    // ---- Emoji rain on title slide ----
-    function initEmojiRain() {
+    // ---- Title emoji rain (potato-only, no lemons) ----
+    function initTitleEmojiRain() {
       const container = document.getElementById('emoji-rain');
-      const emojis = ['\u{1F954}', '\u{1F35F}', '\u{1F34B}', '\u{1F9C8}', '\u{1F525}', '\u{1F954}', '\u{1F35F}', '\u{1F954}'];
+      const emojis = ['\u{1F954}', '\u{1F35F}', '\u{1F9C8}', '\u{1F525}', '\u{1F954}', '\u{1F35F}', '\u{1F954}'];
       const DROP_COUNT = 35;
 
       function spawnDrop() {
@@ -919,14 +1251,76 @@
       }, 200);
     }
 
+    // ---- Closing emoji rain (with lemons!) ----
+    let closingRainStarted = false;
+    function initClosingEmojiRain() {
+      if (closingRainStarted) return;
+      closingRainStarted = true;
+
+      const container = document.getElementById('closing-emoji-rain');
+      const emojis = ['\u{1F954}', '\u{1F35F}', '\u{1F34B}', '\u{1F9C8}', '\u{1F525}', '\u{1F954}', '\u{1F34B}', '\u{1F35F}', '\u{1F954}'];
+      const DROP_COUNT = 40;
+
+      function spawnDrop() {
+        const el = document.createElement('div');
+        el.className = 'rain-drop';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = (Math.random() * 100) + '%';
+        el.style.fontSize = (1.2 + Math.random() * 2) + 'rem';
+        container.appendChild(el);
+
+        const duration = 3 + Math.random() * 4;
+        const wobble = -30 + Math.random() * 60;
+        const spin = -180 + Math.random() * 360;
+
+        gsap.to(el, {
+          y: window.innerHeight + 80,
+          x: wobble,
+          rotation: spin,
+          opacity: 0.15 + Math.random() * 0.25,
+          duration: duration,
+          ease: 'none',
+          onComplete: () => {
+            el.remove();
+          }
+        });
+      }
+
+      // Initial burst
+      for (let i = 0; i < DROP_COUNT; i++) {
+        gsap.delayedCall(Math.random() * 3, spawnDrop);
+      }
+
+      // Continuous rain
+      setInterval(() => {
+        if (document.getElementById('slide-closing').classList.contains('active')) {
+          spawnDrop();
+        }
+      }, 180);
+    }
+
+    // Watch for closing slide becoming active
+    const closingSlide = document.getElementById('slide-closing');
+    const closingObserver = new MutationObserver(() => {
+      if (closingSlide.classList.contains('active')) {
+        initClosingEmojiRain();
+      }
+    });
+    closingObserver.observe(closingSlide, { attributes: true, attributeFilter: ['class'] });
+
     // Start SSE connection
     connectSSE();
 
     // ---- Initialize ----
+    // Set initial background layers to first slide's theme
+    setBg(bgFront, getThemeBg(slides[0]));
+    setBg(bgBack, getThemeBg(slides[0]));
+    updateParticleVisibility(0);
+
     progress.style.width = (1 / slides.length * 100) + '%';
     counter.textContent = '1 / ' + slides.length;
     animateFirstSlide(slides[0]);
-    initEmojiRain();
+    initTitleEmojiRain();
   </script>
 </body>
 </html>
